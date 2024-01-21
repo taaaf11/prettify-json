@@ -19,9 +19,9 @@ def main(page: ft.Page):
         if indent_level_field.value:
             default_indent_level = indent_level_field.value
 
-        if url_field.value:
-            r = requests.get(url_field.value)
-            json_data = json.dumps(json.loads(r.content), indent=default_indent_level)
+        # if url_field.value:
+        #     r = requests.get(url_field.value)
+        #     json_data = json.dumps(json.loads(r.content), indent=default_indent_level)
         if json_text_field.value:
             json_data = json.dumps(json.loads(r.content), indent=default_indent_level)
 
@@ -34,7 +34,7 @@ def main(page: ft.Page):
             page.add(prettified_json)
 
     def reset_controls(e):
-        url_field.value = ""
+        # url_field.value = ""
         json_text_field.value = ""
         indent_level_field.value = ""
 
@@ -42,10 +42,15 @@ def main(page: ft.Page):
             del page.controls[-1]
 
         page.update()
+    
+    
+    def get_clipboard_content(control: ft.TextField):
+        control.value = page.get_clipboard()
+        page.update()
 
-    url_field = ft.TextField(
-        hint_text="Url", text_align=ft.TextAlign.CENTER, width=page.width / 4
-    )
+    # url_field = ft.TextField(
+    #     hint_text="Url", text_align=ft.TextAlign.CENTER, width=page.width / 4
+    # )
     # if the user wants to input as text
     json_text_field = ft.TextField(
         hint_text='JSON "text"',
@@ -57,11 +62,16 @@ def main(page: ft.Page):
     indent_level_field = ft.TextField(hint_text="4")
 
     # grouping text and text field
-    url_controls = ft.Row(
-        [ft.Text("Url:"), url_field], alignment=ft.MainAxisAlignment.CENTER
-    )
+    # url_controls = ft.Row(
+    #     [ft.Text("Url:"), url_field], alignment=ft.MainAxisAlignment.CENTER
+    # )
     json_text_controls = ft.Row(
-        [ft.Text("JSON text:"), json_text_field], alignment=ft.MainAxisAlignment.CENTER
+        [
+            ft.Text("JSON text:"),
+            json_text_field,
+            ft.IconButton(icon=ft.icons.CONTENT_PASTE, on_click=lambda _:get_clipboard_content(json_text_field)),
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
     )
     indent_level_controls = ft.Row(
         [ft.Text("Indent level:"), indent_level_field],
@@ -89,8 +99,8 @@ def main(page: ft.Page):
 
     page.spacing = 5
     page.add(
-        url_controls,
-        ft.Text("OR"),  # OR,
+        # url_controls,
+        # ft.Text("OR"),  # OR,
         json_text_controls,
         ft.Container(
             ft.Divider(thickness=1),
