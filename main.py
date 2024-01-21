@@ -7,9 +7,9 @@ def main(page: ft.Page):
     page.title = "Json Prettifier"
 
     page.fonts = {
-        "JetBrainsMono-Regular": "https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Regular.ttf"
+        "JetBrainsMono-NL-NF-Regular": "/fonts/JetBrainsMonoNLNerdFont-Regular.ttf"
     }
-    page.theme = ft.Theme(font_family="JetBrainsMono-Regular")
+    page.theme = ft.Theme(font_family="JetBrainsMono-NL-NF-Regular")
     page.update()
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -75,6 +75,13 @@ def main(page: ft.Page):
         text="Reset", icon=ft.icons.RESTART_ALT, on_click=reset_controls
     )
 
+    page.appbar = ft.AppBar(
+        actions=[
+            ft.Container(ft.Text("", size=30), margin=ft.margin.only(right=30), on_click=lambda _:page.launch_url("https://github.com/taaaf11/prettify-json"))
+        ]
+    )
+
+    page.spacing = 5
     page.add(
         url_controls,
         ft.Text("OR"),  # OR,
