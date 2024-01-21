@@ -77,7 +77,13 @@ def main(page: ft.Page):
 
     page.appbar = ft.AppBar(
         actions=[
-            ft.Container(ft.Text("", size=30), margin=ft.margin.only(right=30), on_click=lambda _:page.launch_url("https://github.com/taaaf11/prettify-json"))
+            ft.Container(
+                ft.Text("", size=30),
+                margin=ft.margin.only(right=30),
+                on_click=lambda _: page.launch_url(
+                    "https://github.com/taaaf11/prettify-json"
+                ),
+            )
         ]
     )
 
