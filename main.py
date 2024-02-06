@@ -25,7 +25,17 @@ def main(page: ft.Page):
                 json.loads(json_text_field.value), indent=default_indent_level
             )
 
-        prettified_json = ft.TextField(value=json_data, height=page.height / 3, multiline=True, max_lines=15)
+        prettified_json = ft.TextField(
+            value=json_data, height=page.height / 3, multiline=True, max_lines=15
+        )
+
+        copy_prettified_btn = ft.TextButton(
+            text="Copy",
+            icon=ft.icons.COPY_SHARP,
+            on_click=lambda _: page.set_clipboard(prettified_json),
+        )
+
+        prettified_text_controls.append(copy_prettified_btn)
 
         if isinstance(page.controls[-1], ft.TextField):
             page.controls[-1] = prettified_json
@@ -33,12 +43,15 @@ def main(page: ft.Page):
         else:
             page.add(prettified_json)
 
-    def reset_controls(e):
+    def reset_controls():
         json_text_field.value = ""
         indent_level_field.value = ""
 
         if isinstance(page.controls[-1], ft.TextField):
             del page.controls[-1]
+        
+        if prettified_text_controls[-1].text == "Copy":
+            del prettified_text_controls[-1]
 
         page.update()
 
@@ -52,6 +65,7 @@ def main(page: ft.Page):
 
             page.vertical_alignment = ft.MainAxisAlignment.START  # default
         elif e.control.data == "info":
+            reset_controls()
             home_view.visible = False
             info_view.visible = True
 
@@ -95,8 +109,10 @@ def main(page: ft.Page):
         text="Prettify", icon=ft.icons.PALETTE, on_click=add_prettify_json
     )
     reset_btn = ft.TextButton(
-        text="Reset", icon=ft.icons.RESTART_ALT, on_click=reset_controls
+        text="Reset", icon=ft.icons.RESTART_ALT, on_click=lambda _: reset_controls()
     )
+
+    prettified_text_controls = [prettify_btn, reset_btn]
 
     page.appbar = ft.AppBar(
         leading=ft.Container(
@@ -141,7 +157,7 @@ def main(page: ft.Page):
                 margin=ft.margin.symmetric(10),
             ),
             indent_level_controls,
-            ft.Row([prettify_btn, reset_btn], alignment=ft.MainAxisAlignment.CENTER),
+            ft.Row(prettified_text_controls, alignment=ft.MainAxisAlignment.CENTER),
         ],
         visible=True,
         alignment=ft.MainAxisAlignment.CENTER,
