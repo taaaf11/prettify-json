@@ -1,6 +1,7 @@
 import json
-import requests
 import flet as ft
+
+GITHUB_PROFILE_URL = "https://github.com/taaaf11"
 
 
 def main(page: ft.Page):
@@ -17,15 +18,14 @@ def main(page: ft.Page):
     def add_prettify_json(e):
         default_indent_level = 4
         if indent_level_field.value:
-            default_indent_level = indent_level_field.value
+            default_indent_level = int(indent_level_field.value)
 
-        # if url_field.value:
-        #     r = requests.get(url_field.value)
-        #     json_data = json.dumps(json.loads(r.content), indent=default_indent_level)
         if json_text_field.value:
-            json_data = json.dumps(json.loads(r.content), indent=default_indent_level)
+            json_data = json.dumps(
+                json.loads(json_text_field.value), indent=default_indent_level
+            )
 
-        prettified_json = ft.TextField(value=json_data, multiline=True, max_lines=15)
+        prettified_json = ft.TextField(value=json_data, height=page.height / 3, multiline=True, max_lines=15)
 
         if isinstance(page.controls[-1], ft.TextField):
             page.controls[-1] = prettified_json
@@ -34,7 +34,6 @@ def main(page: ft.Page):
             page.add(prettified_json)
 
     def reset_controls(e):
-        # url_field.value = ""
         json_text_field.value = ""
         indent_level_field.value = ""
 
@@ -42,16 +41,31 @@ def main(page: ft.Page):
             del page.controls[-1]
 
         page.update()
-    
-    
+
+    def navigate_to_view(e):
+        if e.control.data == "home":
+            home_view.visible = True
+            info_view.visible = False
+
+            home_view_button.icon = ft.icons.HOME
+            info_view_button.icon = ft.icons.INFO_OUTLINE
+
+            page.vertical_alignment = ft.MainAxisAlignment.START  # default
+        elif e.control.data == "info":
+            home_view.visible = False
+            info_view.visible = True
+
+            home_view_button.icon = ft.icons.HOME_OUTLINED
+            info_view_button.icon = ft.icons.INFO
+
+            page.vertical_alignment = ft.MainAxisAlignment.CENTER
+
+        page.update()
+
     def get_clipboard_content(control: ft.TextField):
         control.value = page.get_clipboard()
         page.update()
 
-    # url_field = ft.TextField(
-    #     hint_text="Url", text_align=ft.TextAlign.CENTER, width=page.width / 4
-    # )
-    # if the user wants to input as text
     json_text_field = ft.TextField(
         hint_text='JSON "text"',
         text_align=ft.TextAlign.CENTER,
@@ -61,15 +75,14 @@ def main(page: ft.Page):
     )
     indent_level_field = ft.TextField(hint_text="4")
 
-    # grouping text and text field
-    # url_controls = ft.Row(
-    #     [ft.Text("Url:"), url_field], alignment=ft.MainAxisAlignment.CENTER
-    # )
     json_text_controls = ft.Row(
         [
             ft.Text("JSON text:"),
             json_text_field,
-            ft.IconButton(icon=ft.icons.CONTENT_PASTE, on_click=lambda _:get_clipboard_content(json_text_field)),
+            ft.IconButton(
+                icon=ft.icons.CONTENT_PASTE,
+                on_click=lambda _: get_clipboard_content(json_text_field),
+            ),
         ],
         alignment=ft.MainAxisAlignment.CENTER,
     )
@@ -86,30 +99,70 @@ def main(page: ft.Page):
     )
 
     page.appbar = ft.AppBar(
+        leading=ft.Container(
+            ft.Row(
+                [
+                    home_view_button := ft.IconButton(
+                        icon=ft.icons.HOME,
+                        icon_size=25,
+                        on_click=navigate_to_view,
+                        data="home",
+                    ),
+                    info_view_button := ft.IconButton(
+                        icon=ft.icons.INFO_OUTLINED,
+                        icon_size=25,
+                        on_click=navigate_to_view,
+                        data="info",
+                    ),
+                ],
+            ),
+            margin=ft.margin.only(left=10),
+        ),
+        leading_width=80,
         actions=[
             ft.Container(
-                ft.Text("", size=30),
+                ft.Text("", size=25),
                 margin=ft.margin.only(right=30),
                 on_click=lambda _: page.launch_url(
-                    "https://github.com/taaaf11/prettify-json"
+                    f"{GITHUB_PROFILE_URL}/prettify-json"
                 ),
             )
-        ]
+        ],
     )
 
     page.spacing = 5
-    page.add(
-        # url_controls,
-        # ft.Text("OR"),  # OR,
-        json_text_controls,
-        ft.Container(
-            ft.Divider(thickness=1),
-            width=page.width / 4,
-            margin=ft.margin.symmetric(10),
-        ),
-        indent_level_controls,
-        ft.Row([prettify_btn, reset_btn], alignment=ft.MainAxisAlignment.CENTER),
+
+    home_view = ft.Column(
+        [
+            json_text_controls,
+            ft.Container(
+                ft.Divider(thickness=1),
+                width=page.width / 4,
+                margin=ft.margin.symmetric(10),
+            ),
+            indent_level_controls,
+            ft.Row([prettify_btn, reset_btn], alignment=ft.MainAxisAlignment.CENTER),
+        ],
+        visible=True,
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
+    info_view = ft.Column(
+        [
+            ft.Text("Written by:", size=30),
+            ft.CircleAvatar(
+                foreground_image_url=f"{GITHUB_PROFILE_URL}.png?size=120px", radius=50
+            ),
+            ft.Text("Muhammad Altaaf", size=30),
+            ft.Text(),
+            ft.Text("NOTE: This is a hobby project. As it is written in", size=15),
+            ft.Text("pure python, expect it to be slow.", size=15),
+        ],
+        visible=False,
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    )
+    page.add(home_view, info_view)
 
 
 ft.app(main)
